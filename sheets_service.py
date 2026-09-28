@@ -7,6 +7,19 @@ from dotenv import load_dotenv
 
 load_dotenv()  # reads the .env file in the project folder
 
+def _ensure_key_file():
+    """On cloud deployments (e.g. Streamlit Cloud), key.json can't be uploaded as a file.
+    If it's missing locally, write it from the GCP_SERVICE_ACCOUNT_JSON secret/env var instead.
+    Does nothing if key.json already exists (normal local/client setup is unaffected)."""
+    key_file = os.getenv("KEY_FILE", "key.json").strip()
+    if not os.path.exists(key_file):
+        key_json = os.getenv("GCP_SERVICE_ACCOUNT_JSON", "").strip()
+        if key_json:
+            with open(key_file, "w") as f:
+                f.write(key_json)
+
+_ensure_key_file()
+
 CLIENT_HEADERS = ["client_id", "name", "company", "contact", "email"]
 
 EMAIL_PATTERN = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")
