@@ -7,6 +7,7 @@ from streamlit_option_menu import option_menu
 
 import sheets_service as db
 import ai_service as ai
+import tts_service as tts
 
 st.set_page_config(page_title="Client Meeting App", layout="wide")
 st.title("Client Meeting App")
@@ -231,12 +232,27 @@ def summary_tab():
         try:
             with st.spinner("Generating summary..."):
                 history = [m for m in all_meetings if m["client_id"] == client_id]
-                summary = ai.summarize_client(client, history)
-            st.markdown(summary)
+                st.session_state[f"summary_{client_id}"] = ai.summarize_client(client, history)
+                st.session_state.pop(f"audio_{client_id}", None)  # clear any old audio for this client
         except Exception as e:
             st.error("We couldn't generate the summary right now. Please try again in a moment.")
             st.caption(f"Technical detail: {e}")
 
+    summary = st.session_state.get(f"summary_{client_id}")
+    if summary:
+        st.markdown(summary)
+
+        if st.button("🔊 Listen to Summary"):
+            try:
+                with st.spinner("Generating audio..."):
+                    st.session_state[f"audio_{client_id}"] = tts.text_to_speech(summary)
+            except Exception as e:
+                st.error("We couldn't generate the audio right now. Please try again in a moment.")
+                st.caption(f"Technical detail: {e}")
+
+        audio_bytes = st.session_state.get(f"audio_{client_id}")
+        if audio_bytes:
+            st.audio(audio_bytes, format="audio/wav")
 
 # ---------------- Sidebar navigation ----------------
 
