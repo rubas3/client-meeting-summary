@@ -74,7 +74,7 @@ def client_opening_tab():
         return
 
     if clients:
-        st.dataframe(pd.DataFrame(clients), use_container_width=True, hide_index=True)
+        st.dataframe(pd.DataFrame(clients), width="stretch", hide_index=True)
     else:
         st.caption("No clients yet.")
 
@@ -125,7 +125,7 @@ def meetings_tab():
     clients_df = pd.DataFrame(clients)
     event = st.dataframe(
         clients_df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         on_select="rerun",
         selection_mode="single-row",
@@ -205,7 +205,7 @@ def summary_tab():
 
     event = st.dataframe(
         display_df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         on_select="rerun",
         selection_mode="single-row",
